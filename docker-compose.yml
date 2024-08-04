@@ -1,0 +1,10 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: REVERSE_PROXY_nginx
+    working_dir: /etc/nginx
+    volumes:
+      - ./config/sites.conf:/etc/nginx/sites.conf:ro
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+    network_mode: host
+    restart: always
