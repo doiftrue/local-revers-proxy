@@ -1,0 +1,11 @@
+# https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.conf]
+indent_style = space
+indent_size = 2
