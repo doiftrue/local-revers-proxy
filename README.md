@@ -41,9 +41,11 @@ nginx -s reload  # reload the config file without stopping the server
 nginx -s quit    # stop the Nginx server graceful (allowing active connections to complete)
 nginx -s stop    # stop the Nginx server
 nginx -V         # version and configure options
-ls -al /usr/lib/nginx/modules # See available modules
+nginx -V 2>&1 | tr ' ' '\n' | grep -- '--with-' # modules
+ls -al /usr/lib/nginx/modules                   # additional modules by --modules-path=/usr/lib/nginx/modules
 ```
 NOTE: fastcgi_params see inside container `/etc/nginx/fastcgi_params`.
+
 
 
 Nginx variables examples
