@@ -1,6 +1,6 @@
-Local Revers Proxy
+Local Reverse Proxy
 ==================
-Simple proxy server for local development that allows using the basic ports 80 and 443, which will be proxied to other ports depending on the specified domain.
+A simple proxy server for local development that allows using the basic ports 80 and 443, which will be proxied to other ports depending on the specified domain.
 
 For example, when navigating to the URL `https://my-site.loc`, the request will be forwarded (proxied) to `https://localhost:44310`, where another web server, such as one running in a Docker container, is operating.
 
@@ -14,14 +14,16 @@ Installation
 - Run `cp config/sites.conf.sample config/sites.conf` - copy "sites.conf.sample" to "sites.conf".
 - Set up your sites in `sites.conf`.
 - Run `make d.up`.
-- Go to any of your site.
+- Go to any of your sites.
+
+NOTE: Ensure that you add your local domains to the system `hosts` file.
 
 
-### How to set up site in "sites.conf"
+### How to set up a site in "sites.conf"
 There are two configuration options for different ports: 80 (http) and 443 (https).
 
 It's very simple:
-- Open `config/sites.conf` file.
+- Open the `config/sites.conf` file.
 - If your site works only over http, add it to the http block.
 - If your site works only over https, add it to the https block.
 - If it works on both schemes (e.g., redirects from http to https), add it to both blocks. This might be necessary to check how the redirect works.
@@ -40,16 +42,16 @@ make nginx.connect
 docker exec -it REVERSE_PROXY_nginx sh
 ```
 
-#### Helpful commands inside container:
+#### Helpful commands inside the container:
 ```shell
 nginx -t         # Test config
 nginx -T         # Test & Dump config
-nginx -s reload  # reload the config file without stopping the server
-nginx -s quit    # stop the Nginx server graceful (allowing active connections to complete)
-nginx -s stop    # stop the Nginx server
-nginx -V         # version and configure options
-nginx -V 2>&1 | tr ' ' '\n' | grep -- '--with-' # modules
-ls -al /usr/lib/nginx/modules                   # additional modules by --modules-path=/usr/lib/nginx/modules
+nginx -s reload  # Reload the config file without stopping the server
+nginx -s quit    # Stop the Nginx server gracefully (allowing active connections to complete)
+nginx -s stop    # Stop the Nginx server
+nginx -V         # Version and configure options
+nginx -V 2>&1 | tr ' ' '\n' | grep -- '--with-' # Modules
+ls -al /usr/lib/nginx/modules                   # Additional modules by --modules-path=/usr/lib/nginx/modules
 ```
 
 
@@ -66,7 +68,7 @@ Nginx as a Reverse Stream Proxy: <https://www.eigenmagic.com/2021/09/20/nginx-as
 #### Detect HTTP headers for stream
 - Extracting HTTP Host Header from nginx Stream Proxy: <https://serverfault.com/questions/1015880/extracting-http-host-header-from-nginx-stream-proxy>
 - How nginx processes a TCP/UDP session: <https://nginx.org/en/docs/stream/stream_processing.html>
-- Support stream tls termination protocol detection: <https://trac.nginx.org/nginx/ticket/1951>
+- Support stream TLS termination protocol detection: <https://trac.nginx.org/nginx/ticket/1951>
 
 
 
