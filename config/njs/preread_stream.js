@@ -21,4 +21,17 @@ function get_server_name( stream ){
   return server_name
 }
 
-export default { read_server_name, get_server_name }
+/**
+ * Get the proxied host IP address.
+ *
+ * @return {string}
+ */
+function get_proxied_host_ip(){
+  return process.env.PROXIED_HOST_IP // 127.0.0.1 (for Ubuntu/macOS), 172.27.205.45 (for WSL2)
+}
+
+export default {
+  read_server_name,
+  get_server_name,
+  get_proxied_host_ip,
+}

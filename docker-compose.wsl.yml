@@ -1,0 +1,9 @@
+# Override for Windows WSL2
+services:
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      PROXIED_HOST_IP: ${PROXIED_HOST_IP}
+    network_mode: bridge

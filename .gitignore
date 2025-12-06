@@ -1,1 +1,4 @@
-/config/sites.conf
+/Makefile-extend.mk
+/docker-compose.override.yml
+
+/sites.conf

@@ -1,16 +1,20 @@
+##
+## INFO: `hostnames;` enable hostname matching mode in maps
+##
 
 # HTTP sites
 map $http_preread_server_name $internal_port {
-  my-http-site.loc            8080;
-  my-site.local               8010;
-  my-site2.com                8011;
-  default                     8019;
+  hostnames; # enable hostname matching mode
+  my-site.com        8010;
+  .local             8020;  # *.local
+  .site.loc          8030;  # any subdomain of site.loc
+  default            8090;
 }
 
 # HTTPS (SSL) sites
 map $ssl_preread_server_name $ssl_internal_port {
-  my-https-site.dev           44380;
-  my-site.local               44310;
-  my-site2.loc                44311;
-  default                     44319;
+  hostnames; # enable hostname matching mode
+  my-site.com        44310;
+  .local             44320;  # *.local
+  default            44390;
 }
