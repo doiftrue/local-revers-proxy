@@ -80,66 +80,57 @@ Nginx as a Reverse Stream Proxy: <https://www.eigenmagic.com/2021/09/20/nginx-as
 - Support stream TLS termination protocol detection: <https://trac.nginx.org/nginx/ticket/1951>
 
 
-### Windows flow (when docker is installed inside WSL2)
+### Windows Flow (for docker desktop + WSL2)
 ```text
-               Windows (host OS)
-    +--------------------------------------+
-    | localhost = 127.0.0.1                |
-    |                                      |
-    | WSL2 adapter gives WSL its IP:       |
-    |     egxample: 172.27.205.45          |
-    | Windows talks to WSL only via this   |
-    +--------------------------------------+
-                      ▲
-                      |
-                Windows → WSL2
-                      |
-                      ▼
-            WSL2 (Linux subsystem)
-    +--------------------------------------+
-    | eth0 = 172.27.205.45                 |
-    | This is WSL's "host" for Docker      |
-    |                                      |
-    | Docker Engine installed inside WSL   |
-    | creates bridge network:              |
-    |                                      |
-    | docker0 = 172.17.0.1                 |
-    +--------------------------------------+
-                      ▲
-                      |
-              WSL → Docker Engine
-                      |
-                      ▼
-         Docker containers (bridge network)
-    +------------------------------------------+
-    | app1: 172.17.0.2                         |
-    | app2: 172.17.0.3                         |
-    | ...                                      |
-    +------------------------------------------+
+│               
+│    +--------- Windows (host OS) ----------+
+│    │ localhost = 127.0.0.1                │
+│    │                                      │
+├────┤ WSL2 adapter gives WSL its IP:       │
+│    │     egxample: 172.27.205.45          │
+│    │ Windows talks to WSL only via this   │
+│    +--------------------------------------+
+│ ▲
+├───── WSL2 (Linux subsystem)
+│ ▼
+│    +---------------- WSL2 ----------------+
+│    │ eth0 = 172.27.205.45                 │                
+│    │ This is WSL's "host" for Docker      │     
+│    │                                      │
+│    │ INFO:                                │                               
+├────┤  Docker Engine installed inside WSL. │
+│    │  OR Docker Desctop is used that      │     
+│    │     imulate docker inside WSL.       │       
+│    +--------------------------------------+
+│ ▲                     
+├───── Docker Containers
+│ ▼
+│    +-- Bridge network --+
+│    │ app1: 172.17.0.2   │                  
+├────┤ app2: 172.17.0.3   │                 
+│    │ ...                │   
+│    +--------------------+
+│
 ```
-
-How traffic flows:
-
-- Windows → WSL:
-  - Uses WSL IP 172.27.x.x
-  - Example: `http://172.27.205.45:8080`
-
-- Windows → Docker container inside WSL:
-  - Windows must use WSL IP + exposed port
-  - Example:
-      container exposes 8080
-      Windows opens: `http://172.27.205.45:8080`
-
-- WSL → Docker container:
-  - Uses docker0 network (172.17.x.x)
-  - Example: `curl 172.17.0.2:80`
-
-- Docker container → WSL:
-  - Uses 172.17.0.1 → 172.27.x.x NAT
-  - Usually containers access WSL via 172.17.0.1 (docker0 gateway)
 
 Key IPs in this setup:
 - 127.0.0.1  - Windows localhost
 - 172.27.x.x - WSL2 IP visible from Windows
 - 172.17.x.x - Docker bridge network inside WSL
 - 172.17.0.1 - Docker default gateway inside WSL
+
+How traffic flows:
+
+- Windows → WSL: Uses WSL IP `172.27.x.x` 
+
+- Windows → Docker container:
+  We must use WSL IP + exposed port
+  Example: when container exposes 8080,
+  Windows opens: `http://172.27.205.45:8080`
+
+- WSL → Docker container:
+  Uses docker0 network (172.17.x.x): `curl 172.17.0.2:80`
+
+- Docker container → WSL:
+  Uses `172.17.0.1` → `172.27.x.x` NAT
+  Usually containers access WSL via 172.17.0.1 (docker0 gateway)
