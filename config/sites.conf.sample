@@ -8,7 +8,7 @@ map $http_preread_server_name $internal_port {
   my-site.com        8010;
   .local             8020;  # *.local
   .site.loc          8030;  # any subdomain of site.loc
-  default            8090;
+  default            9;     # any unknown domain -> refusal
 }
 
 # HTTPS (SSL) sites
@@ -16,5 +16,5 @@ map $ssl_preread_server_name $ssl_internal_port {
   hostnames; # enable hostname matching mode
   my-site.com        44310;
   .local             44320;  # *.local
-  default            44390;
+  default            9;      # any unknown domain -> refusal
 }

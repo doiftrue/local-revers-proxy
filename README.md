@@ -1,6 +1,6 @@
 Local Reverse Proxy
 ===================
-Local proxy server that lets you use standard ports 80 and 443, forwarding requests to other ports based on the domain.
+A local proxy server that lets you use standard 80 and 443 ports, forwarding requests to configured ports based on the request domain.
 
 For example, visiting `https://mysite.loc` proxies the request to `https://localhost:44310`, where your web server (e.g., in Docker) is running.
 
@@ -20,11 +20,34 @@ NOTE: Ensure that you add your local domains to the system `hosts` file.
 - Go to any of your sites.
 
 ### How to set up a site in `sites.conf`:
+
 - Open the `sites.conf` file.
-  NOTE: There are two configuration options for different ports: 80 (http) and 443 (https). 
-- If your site works only over http, add it to the "http" block.
-- If your site works only over https, add it to the "https" block.
-- If it works on both schemes (e.g., redirects from http to https), add it to both blocks. This might be necessary to check how the redirect works.
+  NOTE: There are two configuration options for different ports: 80 (http) and 443 (https).
+- Add each domain to the map for the scheme it must handle.
+- Specify only the destination port in each map value. 
+  INFO: The destination IP is read from `PROXIED_HOST_IP` (normaly it is 127.0.0.1).
+- If a site works on both schemes (e.g., redirects from HTTP to HTTPS), add it to both maps. This might be necessary to check how the redirect works.
+
+Example:
+```nginx
+# HTTP sites
+map $http_preread_server_name $internal_port {
+  hostnames;
+  holder.loc    8010;
+  pbnwp.loc     8011;
+  default       9;
+}
+
+# HTTPS (SSL) sites
+map $ssl_preread_server_name $ssl_internal_port {
+  hostnames;
+  holder.loc    44310;
+  pbnwp.loc     44311;
+  default       9;
+}
+```
+
+RECOMENDATION: Keep `default 9;` in both maps unless you intentionally want unknown domains to reach another default service. The proxy connects to `$proxied_host_ip:9`, which is expected to be closed, so unmatched Host/SNI values fail instead of showing one of your sites.
 
 
 
@@ -57,7 +80,8 @@ $ssl_preread_server_name=-          (http)
 $ssl_preread_server_name=holder.loc (https)
 $server_addr=127.0.0.2
 $remote_addr=127.0.0.1
-$upstream_addr=127.0.0.1:8019
+$upstream_addr=127.0.0.1:9     (unmatched domain, when PROXIED_HOST_IP=127.0.0.1)
+$upstream_addr=127.0.0.1:8010  (matched HTTP domain, when PROXIED_HOST_IP=127.0.0.1)
 ```
 
 
@@ -94,21 +118,21 @@ Nginx as a Reverse Stream Proxy: <https://www.eigenmagic.com/2021/09/20/nginx-as
 ├───── WSL2 (Linux subsystem)
 │ ▼
 │    +---------------- WSL2 ----------------+
-│    │ eth0 = 172.27.205.45                 │                
-│    │ This is WSL's "host" for Docker      │     
+│    │ eth0 = 172.27.205.45                 │
+│    │ This is WSL's "host" for Docker      │
 │    │                                      │
-│    │ INFO:                                │                               
+│    │ INFO:                                │
 ├────┤  Docker Engine installed inside WSL. │
-│    │  OR Docker Desctop is used that      │     
-│    │     imulate docker inside WSL.       │       
+│    │  OR Docker Desctop is used that      │
+│    │     imulate docker inside WSL.       │
 │    +--------------------------------------+
 │ ▲                     
 ├───── Docker Containers
 │ ▼
 │    +-- Bridge network --+
-│    │ app1: 172.17.0.2   │                  
-├────┤ app2: 172.17.0.3   │                 
-│    │ ...                │   
+│    │ app1: 172.17.0.2   │
+├────┤ app2: 172.17.0.3   │
+│    │ ...                │
 │    +--------------------+
 │
 ```
@@ -121,7 +145,7 @@ Key IPs in this setup:
 
 How traffic flows:
 
-- Windows → WSL: Uses WSL IP `172.27.x.x` 
+- Windows → WSL: Uses WSL IP `172.27.x.x`
 
 - Windows → Docker container:
   We must use WSL IP + exposed port
